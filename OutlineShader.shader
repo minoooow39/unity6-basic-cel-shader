@@ -16,7 +16,7 @@ Shader "Custom/OutlineShader"
             Name "OutlinePass"
             Tags { "LightMode"="UniversalForward" }
 
-            Cull Front // Render only back faces for outline effect
+            Cull Front
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -28,16 +28,20 @@ Shader "Custom/OutlineShader"
             {
                 float4 positionOS : POSITION;
                 float3 normalOS : NORMAL;
+                float2 uv : TEXCOORD0;
             };
 
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
+                float2 uv : TEXCOORD0;
             };
 
             CBUFFER_START(UnityPerMaterial)
             float4 _OutlineColor;
             float _OutlineThickness;
+            TEXTURE2D(_MainTex);
+            SAMPLER(sampler_MainTex);
             CBUFFER_END
 
             Varyings vert(Attributes IN)
@@ -50,13 +54,15 @@ Shader "Custom/OutlineShader"
                 positionWS += normalWS * _OutlineThickness;
 
                 OUT.positionCS = TransformWorldToHClip(positionWS);
+                OUT.uv = IN.uv;
 
                 return OUT;
             }
 
             half4 frag(Varyings IN) : SV_Target
             {
-                return _OutlineColor;
+                float4 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv);
+                return texColor * _OutlineColor;
             }
             ENDHLSL
         }
