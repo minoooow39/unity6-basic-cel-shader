@@ -81,7 +81,7 @@ Shader "Custom/CelShader"
 
                 float3 texColor = SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, IN.uv).rgb * _BaseColor.rgb;
 
-                float3 finalColor = texColor * shadowColor;
+                float3 finalColor = texColor * shadowColor * mainLight.color;
 
                 return half4(finalColor, 1.0);
             }
